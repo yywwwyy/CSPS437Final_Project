@@ -162,3 +162,7 @@ cython_debug/
 
 # CSV
 *.csv
+
+# db
+/instance
+.db

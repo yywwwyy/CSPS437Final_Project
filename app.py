@@ -138,7 +138,8 @@ def dashboard():
         zips = request.form.get('zipcode', '')
         if zips == '':
             zips = None
-        zips = zips.strip()
+        else:
+            zips = zips.strip()
         # Stars
         selected_star_range = request.form.get('star', '')
         if selected_star_range == '':

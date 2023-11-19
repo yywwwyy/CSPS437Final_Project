@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+</head>
+<body>
+    <h4>
+        Name: {{ restaurant.restaurant_name }}
+        Star: {{restaurant.score}}
+        Price Range: {{restaurant.price_range}}
+        street: {{restaurant.street}}
+        city: {{restaurant.city}}
+        state: {{restaurant.state}}
+        zip: {{restaurant.zip}}
+    </h4>
+    {% if dishes %}
+    <h1>Menu List</h1>
+    <ul>
+        {% for dish in dishes %}
+            <li>
+                {{ dish.name }}
+                {{ dish.category_type }}
+                {{ dish.price }}
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>No menu available for this restaurant.</p>
+    {% endif %}
+    <form action="{{ url_for('redirect_to_dashboard') }}">
+        <button type="submit">Return To Dashboard</button>
+    </form>
+</body>>
+</html>

@@ -156,11 +156,11 @@ def add_favorite(restaurant_id):
     username = session.get('username')
     user = User.query.filter_by(username=username).first()
     already_like = Favorite.query.filter_by(user_id=user.user_id, restaurant_id=restaurant_id).first()
-
+    # print(already_like)
     if not already_like:
         new_restaurant = Favorite(
             user_id=user.user_id,
-            restaurant_id=restaurant_id
+            restaurant_id= restaurant_id
         )
         db.session.add(new_restaurant)
         db.session.commit()

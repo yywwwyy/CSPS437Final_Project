@@ -255,7 +255,7 @@
                 <td>{{ restaurant.state }}</td>
                 <td>{{ restaurant.zip }}</td>
                 <td>
-                    <a href="javascript:void(0);" onclick="addToFavorite({{ restaurant.restaurant_id }})">Add to Favorite</a>
+                    <a href="/Add_Favorite/{{ restaurant.restaurant_id }}">Add to Favorite</a>
                     <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
                 </td>
             </tr>
@@ -306,7 +306,7 @@
                     <td>{{ restaurant.state }}</td>
                     <td>{{ restaurant.zip }}</td>
                     <td>
-                        <a href="javascript:void(0);" onclick="addToFavorite({{ restaurant.restaurant_id }})">Add to Favorite</a>
+                        <a href="/Add_Favorite/{{ restaurant.restaurant_id }}">Add to Favorite</a>
                         <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
                     </td>
                 </tr>

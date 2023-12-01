@@ -1,25 +1,122 @@
-<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px; /* Added margin */
+        }
+        form {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .flashes {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+        .flashes li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .flashes .error {
+            background-color: #ff8080;
+            color: #fff;
+        }
+        .flashes .info {
+            background-color: #80bfff;
+            color: #fff;
+        }
+        .register-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .register-button button {
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .register-button button:hover {
+            background-color: #31b0d5;
+        }
+    </style>
+</head>
+<body>
+    <h2>Login</h2> <!-- Moved the h2 above the form -->
 
-<h2>Login</h2>
-<form action="/log_in" method="post">
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username" required>
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" required>
-  <button type="submit">Login</button>
-</form>
+    <form action="/log_in" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class="flashes">
-        {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
             </ul>
         {% endif %}
     {% endwith %}
 
-<!-- Add the registration button with a link to trigger redirection -->
-<form action="{{ url_for('redirect_to_register') }}">
-    <p>Don't have an account? </p>
-    <button type="submit">Register now</button>
-</form>
+    <div class="register-button">
+        <form action="{{ url_for('redirect_to_register') }}">
+            <p>Don't have an account?</p>
+            <button type="submit">Register now</button>
+        </form>
+    </div>
+</body>
+</html>
+

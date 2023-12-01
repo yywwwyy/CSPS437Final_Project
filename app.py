@@ -1,108 +1,13 @@
 import csv
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from db_init import db, Restaurant, restaurant_category, Dish, User, Favorite  
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
-
-
-# Model define (Table Define)
-
-class Restaurant(db.Model):
-    restaurant_id = db.Column(db.Integer, primary_key=True)
-    restaurant_name = db.Column(db.String(100))
-    score = db.Column(db.Numeric(2, 1))
-    price_range = db.Column(db.Integer)
-    street = db.Column(db.String(50))
-    city = db.Column(db.String(50))
-    state = db.Column(db.String(50))
-    zip = db.Column(db.String(50))
-
-
-class restaurant_category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    restaurant_id = db.Column(db.Integer)
-    category_type = db.Column(db.String(100))
-
-
-class Dish(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    restaurant_id = db.Column(db.Integer)
-    category_type = db.Column(db.String(100))
-    name = db.Column(db.String(100))
-    price = db.Column(db.String(50))
-
-
-class User(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(20), nullable=False)
-
-
-class Favorite(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
-    restaurant_id = db.Column(db.Integer)
-
-
-# insert csv data to db
-def insert_restaurant_data(restaurant_path):
-    with open(restaurant_path, 'r', encoding='utf-8') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            # Create a new restaurant instance for each row in the CSV
-            score = float(row['Score']) if row['Score'] and row['Score'] != 'None' else None
-            price_range = int(row['Price_range']) if row['Price_range'] and row['Price_range'] != 'None' else None
-            zipint = int(row['Zip'])
-            restaurant = Restaurant(
-                restaurant_id=row['Restaurant_id'],
-                restaurant_name=row['Restaurant_name'],
-                score=score,
-                price_range=price_range,
-                street=row['Street'],
-                city=row['City'],
-                state=row['State'],
-                zip=zipint,
-            )
-            # Add the Student instance to the session
-            db.session.add(restaurant)
-        db.session.commit()
-
-
-# insert csv data to db
-def insert_restaurant_category_data(categories_path):
-    with open(categories_path, 'r', encoding='utf-8') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            # Create a new restaurant instance for each row in the CSV
-            rest_cat = restaurant_category(
-                restaurant_id=row['Restaurant_id'],
-                category_type=row['Category_type'],
-            )
-            # Add the Student instance to the session
-            db.session.add(rest_cat)
-        db.session.commit()
-
-
-# insert csv data to db
-def insert_dish_data(restaurant_menus_path):
-    with open(restaurant_menus_path, 'r', encoding='utf-8') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            # Create a new restaurant instance for each row in the CSV
-            dish = Dish(
-                restaurant_id=row['restaurant_id'],
-                category_type=row['category'],
-                name=row['name'],
-                price=row['price'],
-            )
-            # Add the Student instance to the session
-            db.session.add(dish)
-        db.session.commit()
-
+## start
+db.init_app(app)
 
 @app.route('/')
 def log_in_page():
@@ -133,99 +38,87 @@ def dashboard():
     if not username:
         return redirect(url_for('log_in_page'))
 
+    # Initialize variables
+    restaurants, restaurants2, favorite_restaurant = [], [], []
+    active_tab = 'RestaurantList'  # Default active tab
+    error_message = ''
+    error_message2 = '' 
+
     if request.method == 'POST':
-        # Retrieve checkbox values from the form data
+        # Retrieve and process form data
         zips = request.form.get('zipcode', '')
-        if zips == '':
-            zips = None
-        else:
-            zips = zips.strip()
-        # Stars
         selected_star_range = request.form.get('star', '')
-        if selected_star_range == '':
-            selected_star_range = None
-
-        # Price ranges
         selected_price_range = request.form.get('price_range', '')
-        if selected_price_range == '':
-            selected_price_range = None
-
-        # Category
         selected_category = request.form.get('category', '')
-        if selected_category == '':
-            selected_category = None
+        
+        if not zips:
+            error_message = 'Please enter a ZIP code.'
+        else:
 
-        # SQL query
-        string_query = "select * from Restaurant where 1=1"
-        params = {}
+            # Create SQL query
+            string_query = "select * from Restaurant where 1=1"
+            params = {}
+            if zips:
+                string_query += " and Restaurant.zip = :zip"
+                params["zip"] = zips
+            if selected_star_range:
+                string_query += " and Restaurant.score >= :star"
+                params["star"] = selected_star_range
+            if selected_price_range:
+                string_query += " and Restaurant.price_range <= :price_range"
+                params["price_range"] = selected_price_range
+            if selected_category:
+                # Corrected subquery
+                string_query += " and Restaurant.restaurant_id in (select rc.restaurant_id from restaurant_category rc where rc.Category_type = :category)"
+                params["category"] = selected_category
 
-        if zips is not None:
-            string_query = string_query + " and (Restaurant.zip = :zip)"
-            params["zip"] = zips
-        if selected_star_range is not None:
-            string_query = string_query + " and (Restaurant.score >= :star)"
-            params["star"] = int(selected_star_range)
-        if selected_price_range is not None:
-            string_query = string_query + " and (Restaurant.price_range <= :price_range)"
-            params["price_range"] = int(selected_price_range)
-        if selected_category is not None:
-            string_query = string_query + " and Restaurant.restaurant_id in (select r.restaurant_id from Restaurant r left join restaurant_category rc on r.restaurant_id=rc.restaurant_id where rc.Category_type = :category)"
-            params["category"] = selected_category
-
-        query = text(string_query)
-        # params = {"zip": zips, "star": selected_star_range, 'price_range': selected_price_range, 'category':selected_category}
-        # zip_query = text("INTERSECT select * from Restaurant where (Restaurant.zip = :zip)")
-        # star_query = text("INTERSECT select * from Restaurant where Restaurant.score >= :star")
-        # price_query = text("INTERSECT select * from Restaurant where Restaurant.price_range <= :price_range")
-        # category_query = text("INTERSECT select * from Restaurant where Restaurant.restaurant_id in (select distinct Restaurant_id from restaurant_category where Category_type = :category)")
-
-        # Execute the query
-        result = db.session.execute(query, params)
-
-        # Fetch the results
-        restaurants = result.fetchall()
-        #return render_template('DashBoard.html', user=user, username=username, restaurants=restaurants)
-    else:
-        restaurants = Restaurant.query.limit(1000).all()
-
+            # Execute query
+            query = text(string_query)
+            result = db.session.execute(query, params)
+            restaurants = result.fetchall()
+            if not restaurants:
+                error_message = "No restaurants found matching your criteria."
+        
+    # Handling GET request (for keyword search)
     restaurant_keywords = request.args.get('keywords', '')
     if restaurant_keywords:
-        restaurant_keywords = restaurant_keywords.strip()
-        print(f"Selected keywords: {restaurant_keywords}")
+        active_tab = 'KeywordSearch'
         string_keyword = """
-                             select distinct r.restaurant_id, r.restaurant_name, r.score, r.price_range, r.street, r.city, r.state, r.zip
-                             from Restaurant r 
-                             left join restaurant_category rc 
-                             on r.restaurant_id=rc.restaurant_id 
-                             where r.restaurant_name like :keyword
-                                 or r.street like :keyword
-                                 or r.city like :keyword
-                                 or rc.Category_type like :keyword
-                                  """
+            select distinct r.restaurant_id, r.restaurant_name, r.score, r.price_range, r.street, r.city, r.state, r.zip
+            from Restaurant r 
+            left join restaurant_category rc on r.restaurant_id=rc.restaurant_id 
+            where r.restaurant_name like :keyword
+            or r.street like :keyword
+            or r.city like :keyword
+            or rc.Category_type like :keyword
+            LIMIT 50
+        """
         params2 = {'keyword': f"%{restaurant_keywords}%"}
         key_word_query = text(string_keyword)
         result2 = db.session.execute(key_word_query, params2)
-
-        # Fetch the results
         restaurants2 = result2.fetchall()
-    else:
-        restaurants2 = Restaurant.query.limit(1000).all()
+        if not restaurants2:
+            error_message2 = "No restaurants found matching your keywords."
+       
 
+    # Handling Favorites
     string_user_resturant = """
-                            select distinct r.restaurant_id, r.restaurant_name, r.score, r.price_range, r.street, r.city, r.state, r.zip
-                            from Favorite f
-                            left join Restaurant r
-                            on f.restaurant_id = r.restaurant_id
-                            where f.user_id = :user_id
-                            """
+        select distinct r.restaurant_id, r.restaurant_name, r.score, r.price_range, r.street, r.city, r.state, r.zip
+        from Favorite f
+        left join Restaurant r on f.restaurant_id = r.restaurant_id
+        where f.user_id = :user_id
+        LIMIT 50
+    """
     params3 = {'user_id': user.user_id}
     favorite_restaurant_query = text(string_user_resturant)
     result3 = db.session.execute(favorite_restaurant_query, params3)
-    # Fetch the results
     favorite_restaurant = result3.fetchall()
 
-    return render_template('DashBoard.html', user=user, username=username, restaurants=restaurants,
-                           restaurants2=restaurants2, favorite_resturant=favorite_restaurant)
+    return render_template('DashBoard.html', user=user, username=username, 
+                           restaurants=restaurants, restaurants2=restaurants2, 
+                           favorite_resturant=favorite_restaurant, active_tab=active_tab,
+                           error_message=error_message, error_message2=error_message2)
+
 
 
 @app.route('/register')
@@ -313,18 +206,7 @@ def redirect_to_dashboard():
 
 
 if __name__ == '__main__':
-    # csv paths
-    restaurant_path = 'CSV_DATA/restaurant_dataset.csv'
-    restaurant_menus_path = 'CSV_DATA/restaurant_menus.csv'
-    categories_path = 'CSV_DATA/categories.csv'
-    # test path
-    restaurant_short_path = 'CSV_DATA/restaurant_short.csv'
-    categories_short_path = 'CSV_DATA/categories_short.csv'
-    restaurant_menus_short_path = 'CSV_DATA/restaurant_menus_short.csv'
     with app.app_context():
-        db.drop_all()
+        # This will ensure all tables are created
         db.create_all()
-        insert_restaurant_data(restaurant_short_path)
-        insert_restaurant_category_data(categories_short_path)
-        insert_dish_data(restaurant_menus_short_path)
     app.run(debug=True)

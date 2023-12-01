@@ -1,27 +1,196 @@
-<!-- dashboard.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        h1, h4 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            margin-right: 10px;
+        }
+        input[type="text"], select {
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .tab {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            display: flex; 
+            width: 100%; 
+        }
+
+        /* Tab links */
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+            border-bottom: 2px solid transparent;
+            color: #000; 
+            flex: 1; 
+        }
+
+        /* Change background color on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+            border-bottom: 2px solid #007bff;
+        }
+
+        /* Tab content */
+        .tabcontent {
+            display: none;
+            padding: 20px;
+        }
+
+        form label {
+            display: inline-block; 
+            width: 150px; 
+            text-align: right; 
+            margin-right: 10px; 
+        }
+        
+        footer {
+            margin-top: auto;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        th {
+            background-color: #f2f2f2;
+        }
+    
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    
+        a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 10px;
+        }
+    
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Add this CSS to make table content appear on one line */
+        #KeywordSearch table {
+            white-space: nowrap; /* Prevent table content from wrapping */
+        }
+
+        #KeywordSearch th,
+        #KeywordSearch td {
+            white-space: nowrap; /* Prevent table header and data from wrapping */
+            overflow: hidden;     /* Hide overflowed content */
+            text-overflow: ellipsis; /* Add ellipsis (...) for overflowed content */
+        }
+
+        #activeTabForm {
+            display: none;
+        }
+
+    </style>
 </head>
 <body>
-    <!-- Display user information on the dashboard -->
-    <h1>Welcome, ID: {{user.user_id}}  USER:{{ user.username }}!</h1>
-    <!-- Add more dashboard content as needed -->
-    <!-- Add the log out button with a link to trigger redirection -->
-    <form action="{{ url_for('redirect_to_login') }}">
-        <p>Log Out? <button type="submit">Log Out</button></p>
+    <!-- Header with Tabs -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'RestaurantList')">Restaurant List</button>
+        <button class="tablinks" onclick="openTab(event, 'KeywordSearch')">Key Word Search</button>
+        <button class="tablinks" onclick="openTab(event, 'UserFavorites')">User's Favorite Restaurants</button>
+    </div>
+
+    <!-- Add a hidden field inside a form to remember the active tab -->
+    <form id="activeTabForm" method="POST" action="{{ url_for('dashboard') }}">
+        <input type="hidden" name="active_tab" id="activeTabInput" value="">
     </form>
 
-
+        <h1>Welcome! USER:{{ user.username }}!</h1>
+    
+    
+    <!-- Restaurant List Tab -->
+<div id="RestaurantList" class="tabcontent">
+    <!-- Restaurant List Content -->
+    <h1>Restaurant List</h1>
     <form method="POST" action="{{ url_for('dashboard') }}">
-        <label for="zipcode">ZIP CODE SEARCH</label>
+        {% if error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+        <label for="zipcode">ZIP code:</label>
         <input type="text" name="zipcode" placeholder="Enter zip code" id="zipcode">
 
-        <label for="price_range">Select Price Range:</label>
+        <label for="price_range">Price Range:</label>
         <select name="price_range" id="price_range">
             <option value=''></option>
             <option value=1><=$</option>
@@ -30,9 +199,9 @@
             <option value=4><=$$$$</option>
         </select>
 
-        <label for="star">Select Star Range:</label>
+        <label for="star">Star Range:</label>
         <select name="star" id="star">
-            <option value=''></option>>
+            <option value=''></option>
             <option value=0>>=0</option>
             <option value=1>>=1</option>
             <option value=2>>=2</option>
@@ -41,7 +210,7 @@
             <option value=5>5*</option>
         </select>
 
-        <label for="category">Choose Category:</label>
+        <label for="category">Category:</label>
         <select name="category" id="category">
             <option value=''></option>
             <option value='Asian'>Asian</option>
@@ -59,72 +228,204 @@
         </select>
         <button type="submit">Submit</button>
     </form>
+    <table>
+        {% if restaurants %}
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Star</th>
+                <th>Price Range</th>
+                <th>Street</th>
+                <th>City</th>
+                <th>State</th>
+                <th>ZIP</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for restaurant in restaurants %}
+            <tr>
+                <td>{{ restaurant.restaurant_id }}</td>
+                <td>{{ restaurant.restaurant_name }}</td>
+                <td>{{ restaurant.score }}</td>
+                <td>{{ restaurant.price_range }}</td>
+                <td>{{ restaurant.street }}</td>
+                <td>{{ restaurant.city }}</td>
+                <td>{{ restaurant.state }}</td>
+                <td>{{ restaurant.zip }}</td>
+                <td>
+                    <a href="javascript:void(0);" onclick="addToFavorite({{ restaurant.restaurant_id }})">Add to Favorite</a>
+                    <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% endif %}
+    </table>
+</div>
 
-    <h4>Restaurant List</h4>
-    <ul>
-        {% for restaurant in restaurants %}
-            <li>
-                ID: {{restaurant.restaurant_id}}
-                name: {{ restaurant.restaurant_name }}
-                Star: {{restaurant.score}}
-                Price Range: {{restaurant.price_range}}
-                street: {{restaurant.street}}
-                city: {{restaurant.city}}
-                state: {{restaurant.state}}
-                zip: {{restaurant.zip}}
-                <a href="/Add_Favorite/{{ restaurant.restaurant_id }}">Add to Favorite</a>
-                <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
-            </li>
-        {% endfor %}
-    </ul>
-
-
-    <h4>Key Word Search</h4>
+   <!-- Key Word Search Tab -->
+   <div id="KeywordSearch" class="tabcontent">
+    <!-- Key Word Search Content -->
+    <h1>Key Word Search</h1>
     <form method="GET" action="{{ url_for('dashboard') }}">
-    <input type="text" name="keywords" placeholder="Enter keywords">
-    <button type="submit">Search Restaurant</button>
+        <input type="text" name="keywords" placeholder="Enter keywords" style="width: 85%; height: 30px; font-size: 18px;">
+        <button type="submit">Search Restaurant</button>
     </form>
-
-    <h4>Restaurant List</h4>
-    <ul>
-        {% for r2 in restaurants2 %}
-            <li>
-                ID: {{r2.restaurant_id}}
-                name: {{ r2.restaurant_name }}
-                Star: {{r2.score}}
-                Price Range: {{r2.price_range}}
-                street: {{r2.street}}
-                city: {{r2.city}}
-                state: {{r2.state}}
-                zip: {{r2.zip}}
-                <a href="/Add_Favorite/{{ r2.restaurant_id }}">Add to Favorite</a>
-                <a href="/menu/{{ r2.restaurant_id }}">View Menu</a>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <h4>User's Favorite</h4>
-    {% if favorite_resturant %}
-    <ul>
-        {% for r3 in favorite_resturant %}
-            <li>
-                ID: {{r3.restaurant_id}}
-                name: {{ r3.restaurant_name }}
-                Star: {{r3.score}}
-                Price Range: {{r3.price_range}}
-                street: {{r3.street}}
-                city: {{r3.city}}
-                state: {{r3.state}}
-                zip: {{r3.zip}}
-                <a href="/delete_favorite/{{ r3.restaurant_id }}">Delete the Favorite</a>
-                <a href="/menu/{{ r3.restaurant_id }}">View Menu</a>
-            </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-        <p>No Favorite Restaurant.</p>
+    {% if error_message2 %}
+        <p style="color: red;">{{ error_message2 }}</p>
     {% endif %}
+    <!-- Displaying search results -->
+    <div>
+        <table>
+            {% if restaurants2 %}
+            <h4>Search Results:</h4>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Star</th>
+                    <th>Price Range</th>
+                    <th>Street</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>ZIP</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for restaurant in restaurants2 %}
+                <tr>
+                    <td>{{ restaurant.restaurant_id }}</td>
+                    <td>{{ restaurant.restaurant_name }}</td>
+                    <td>{{ restaurant.score }}</td>
+                    <td>{{ restaurant.price_range }}</td>
+                    <td>{{ restaurant.street }}</td>
+                    <td>{{ restaurant.city }}</td>
+                    <td>{{ restaurant.state }}</td>
+                    <td>{{ restaurant.zip }}</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="addToFavorite({{ restaurant.restaurant_id }})">Add to Favorite</a>
+                        <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
 
+    <!-- User's Favorite Restaurants Tab -->
+    <div id="UserFavorites" class="tabcontent">
+        <!-- User's Favorite Restaurants Content -->
+<h1>User's Favorite Restaurants</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Star</th>
+            <th>Price Range</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>State</th>
+            <th>ZIP</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if favorite_resturant %}
+            {% for r3 in favorite_resturant %}
+                <tr>
+                    <td>{{ r3.restaurant_id }}</td>
+                    <td>{{ r3.restaurant_name }}</td>
+                    <td>{{ r3.score }}</td>
+                    <td>{{ r3.price_range }}</td>
+                    <td>{{ r3.street }}</td>
+                    <td>{{ r3.city }}</td>
+                    <td>{{ r3.state }}</td>
+                    <td>{{ r3.zip }}</td>
+                    <td>
+                        <a href="/delete_favorite/{{ r3.restaurant_id }}">Delete from Favorites</a>
+                        <a href="/menu/{{ r3.restaurant_id }}">View Menu</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="9">No Favorite Restaurants.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
 
+    </div>
+
+   <!-- JavaScript for Tab Functionality -->
+   <script>
+    function openTab(evt, tabName) {
+        // Get all elements with class "tabcontent" and hide them
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class "tablinks" and remove the "active" class
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // Show the current tab
+        document.getElementById(tabName).style.display = "block";
+        // Add "active" class only if event is not null
+        if (evt) {
+            evt.currentTarget.className += " active";
+        }
+
+        // Set the value of the hidden input to the current tab name
+        document.getElementById('activeTabInput').value = tabName;
+    }
+
+    // Function to switch to User's Favorite Restaurants Tab
+    function addToFavorite(restaurantId) {
+        // Call this function when "Add to Favorite" is clicked
+        // Change the active tab to "UserFavorites"
+        openTab(null, 'UserFavorites');
+        // Optionally, you can also scroll to the User's Favorite Restaurants Tab
+        document.getElementById('UserFavorites').scrollIntoView({ behavior: 'smooth' });
+        // Here, you can perform the logic to add the restaurant to favorites
+        // You may need to send an AJAX request to update the user's favorites
+    }
+    
+    // Function to set the active tab on page load
+    window.onload = function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var activeTab = urlParams.get('activeTab') || "{{ active_tab }}";
+    
+        if (document.getElementById(activeTab)) {
+            openTab(null, activeTab);
+        }
+    
+        var activeTabButton = document.querySelector("button[onclick=\"openTab(event, '" + activeTab + "')\"]");
+        if (activeTabButton) {
+            activeTabButton.classList.add("active");
+        }
+    };
+</script>
+
+    
+    <footer>
+    <form action="{{ url_for('redirect_to_login') }}">
+        <p>Signed in as USER:{{ user.username }}!</p>
+        <p><button type="submit">Log Out</button></p>
+    </form>
+</footer>
 </body>
 </html>
+
+
+

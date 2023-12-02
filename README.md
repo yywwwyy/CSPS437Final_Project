@@ -8,16 +8,19 @@ Welcome to the Restaurant Finder and Dashboard Web Application, a one-stop solut
 ### Prerequisites
 - Python 3.x
 - Flask Python web framework
-- SQL database server (e.g., MySQL, PostgreSQL)
 
 ### Initial Setup
 To get the application up and running, follow these steps:
 
-#### 1. Database Initialization (`db_init.py`):
+#### 1. Database download:
+   - Go to google drive to download necessary csv files. The link is https://drive.google.com/drive/folders/1g1TlG_zCqg9E3Yp5tOgkNMtuvdcOj_KN?usp=sharing. The files need to be downloaded are "restaurant_menus.csv", "restaurant_data_new.csv" and "categories.csv". Put all of these csv files into the "CSV_DATA" folder.
+   - **Notice:** The csv files can be about 300 MB.
+
+#### 2. Database Initialization (`db_init.py`):
    - This script sets up your database with necessary tables and initial data.
    - **Important:** The initialization process can take some time, so please be patient.
 
-#### 2. Running the Application (`app.py`):
+#### 3. Running the Application (`app.py`):
    - After setting up the database, run `app.py` to start the Flask web server.
 
 ### Project Structure

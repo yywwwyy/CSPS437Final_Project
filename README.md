@@ -55,10 +55,10 @@ To get the application up and running, follow these steps:
 3. Access the app via `http://127.0.0.1:5000` in your browser.
 
 ## Contributing
-Weiyi You	Lindsey Lin
+Weiyi You,	Lindsey Lin
 
 ## Contact
-linbdsey.lin@yale.edu   weiyi.you@yale.edu
+linbdsey.lin@yale.edu,   weiyi.you@yale.edu
 
 ---
 

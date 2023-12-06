@@ -255,7 +255,7 @@
                 <td>{{ restaurant.state }}</td>
                 <td>{{ restaurant.zip }}</td>
                 <td>
-                    <a href="/Add_Favorite/{{ restaurant.restaurant_id }}">Add to Favorite</a>
+                    <a href="javascript:void(0);" onclick="addToFavorite('{{ restaurant.restaurant_id }}')">Add to Favorite</a>
                     <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
                 </td>
             </tr>
@@ -306,7 +306,8 @@
                     <td>{{ restaurant.state }}</td>
                     <td>{{ restaurant.zip }}</td>
                     <td>
-                        <a href="/Add_Favorite/{{ restaurant.restaurant_id }}">Add to Favorite</a>
+            
+                        <a href="javascript:void(0);" onclick="addToFavorite('{{ restaurant.restaurant_id }}')">Add to Favorite</a>
                         <a href="/menu/{{ restaurant.restaurant_id }}">View Menu</a>
                     </td>
                 </tr>
@@ -366,45 +367,47 @@
    <!-- JavaScript for Tab Functionality -->
    <script>
     function openTab(evt, tabName) {
-        // Get all elements with class "tabcontent" and hide them
         var i, tabcontent, tablinks;
+    
+        // Hide all tab contents
         tabcontent = document.getElementsByClassName("tabcontent");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
-
-        // Get all elements with class "tablinks" and remove the "active" class
+    
+        // Remove "active" class from all tab links
         tablinks = document.getElementsByClassName("tablinks");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
-
-        // Show the current tab
+    
+        // Show the current tab and add "active" class to the current tab link
         document.getElementById(tabName).style.display = "block";
-        // Add "active" class only if event is not null
         if (evt) {
             evt.currentTarget.className += " active";
         }
-
-        // Set the value of the hidden input to the current tab name
-        document.getElementById('activeTabInput').value = tabName;
+    
+        // Save the current tab to local storage
+        localStorage.setItem('activeTab', tabName);
     }
+    
+    
 
     // Function to switch to User's Favorite Restaurants Tab
     function addToFavorite(restaurantId) {
-        // Call this function when "Add to Favorite" is clicked
-        // Change the active tab to "UserFavorites"
-        openTab(null, 'UserFavorites');
-        // Optionally, you can also scroll to the User's Favorite Restaurants Tab
-        document.getElementById('UserFavorites').scrollIntoView({ behavior: 'smooth' });
-        // Here, you can perform the logic to add the restaurant to favorites
-        // You may need to send an AJAX request to update the user's favorites
+        // Set active tab to 'UserFavorites' in local storage
+        localStorage.setItem('activeTab', 'UserFavorites');
+    
+        // Redirect to add to favorites
+        window.location.href = "/Add_Favorite/" + restaurantId;
     }
+    
+    
+    
     
     // Function to set the active tab on page load
     window.onload = function() {
-        var urlParams = new URLSearchParams(window.location.search);
-        var activeTab = urlParams.get('activeTab') || "{{ active_tab }}";
+        var activeTab = localStorage.getItem('activeTab') || 'RestaurantList';
     
         if (document.getElementById(activeTab)) {
             openTab(null, activeTab);
@@ -415,6 +418,10 @@
             activeTabButton.classList.add("active");
         }
     };
+    
+    
+    
+    
 </script>
 
     

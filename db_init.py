@@ -100,14 +100,14 @@ def insert_dish_data(restaurant_menus_path):
 # Function to initialize the database
 def initialize_database():
     # csv paths
-    restaurant_path = 'CSV_DATA/restaurant_dataset.csv'
+ #   restaurant_path = 'CSV_DATA/restaurant_dataset.csv'
     restaurant_path_new = 'CSV_DATA/restaurant_data_new.csv'
     restaurant_menus_path = 'CSV_DATA/restaurant_menus.csv'
     categories_path = 'CSV_DATA/categories.csv'
     # test path
-    restaurant_short_path = 'CSV_DATA/restaurant_short.csv'
-    categories_short_path = 'CSV_DATA/categories_short.csv'
-    restaurant_menus_short_path = 'CSV_DATA/restaurant_menus_short.csv'
+#   restaurant_short_path = 'CSV_DATA/restaurant_short.csv'
+#   categories_short_path = 'CSV_DATA/categories_short.csv'
+#   restaurant_menus_short_path = 'CSV_DATA/restaurant_menus_short.csv'
     with app.app_context():
         db.drop_all()
         db.create_all()

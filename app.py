@@ -146,6 +146,10 @@ def add_user():
 @app.route('/delete/<int:user_id>')
 def delete_user(user_id):
     user_to_delete = User.query.get_or_404(user_id)
+    favorite_to_delete = Favorite.query.filter_by(user_id=user_to_delete.user_id).first()
+    if favorite_to_delete:
+        db.session.delete(favorite_to_delete)
+        db.session.commit()
     db.session.delete(user_to_delete)
     db.session.commit()
     return redirect(url_for('register'))
